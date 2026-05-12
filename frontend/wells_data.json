@@ -1,0 +1,20 @@
+[
+  {
+    "latitude": 16.50,
+    "longitude": 80.60,
+    "district": "Krishna",
+    "block": "Vijayawada Rural",
+    "village": "Gollapudi",
+    "wl": 4.2,
+    "year": 2023
+  },
+  {
+    "latitude": 16.50,
+    "longitude": 80.60,
+    "district": "Krishna",
+    "block": "Vijayawada Rural",
+    "village": "Gollapudi",
+    "wl": 6.8,
+    "year": 2022
+  }
+]
