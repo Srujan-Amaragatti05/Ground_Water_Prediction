@@ -6,6 +6,11 @@ from pydantic import BaseModel, Field
 import pickle
 import numpy as np
 from fastapi.middleware.cors import CORSMiddleware
+import sys, os
+
+# Phase-2 router (Step F — inference only via phase2_prediction_service)
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from routers.phase2 import router as phase2_router
 
 
 # -----------------------------
@@ -27,21 +32,27 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Register Phase-2 router (Step F)
+app.include_router(phase2_router)
+
 
 # -----------------------------
 # 3. Load trained model & preprocessors
 #    (Loaded once at startup)
 # -----------------------------
-with open("models/random_forest_groundwater_model.pkl", "rb") as f:
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODELS_DIR = os.path.join(BASE_DIR, "models")
+
+with open(os.path.join(MODELS_DIR, "random_forest_groundwater_model.pkl"), "rb") as f:
     model = pickle.load(f)
 
-with open("models/scaler.pkl", "rb") as f:
+with open(os.path.join(MODELS_DIR, "scaler.pkl"), "rb") as f:
     scaler = pickle.load(f)
 
-with open("models/district_encoder.pkl", "rb") as f:
+with open(os.path.join(MODELS_DIR, "district_encoder.pkl"), "rb") as f:
     district_encoder = pickle.load(f)
 
-with open("models/block_encoder.pkl", "rb") as f:
+with open(os.path.join(MODELS_DIR, "block_encoder.pkl"), "rb") as f:
     block_encoder = pickle.load(f)
 
 # -----------------------------

@@ -15,7 +15,7 @@ from tensorflow.keras.layers import Dense, SimpleRNN, LSTM, GRU, Input
 # ============================================
 # STEP 1 — LOAD & FILTER DATA
 # ============================================
-df = pd.read_csv("D:\\NewE\\College\\Project\\GW\\dataset\\fixed_real_dataset.csv")
+df = pd.read_csv("D:\\NewE\\College\\Project\\Ground_Water_Prediction\\dataset\\fixed_real_dataset.csv")
 
 df = df[df["STATE_UT"] == "Andhra Pradesh"]
 

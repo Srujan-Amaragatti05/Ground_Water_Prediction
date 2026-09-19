@@ -1,19 +1,22 @@
 import pickle
 import pandas as pd
+import os
+
+MODEL_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Load trained model
-with open("random_forest_groundwater_model.pkl", "rb") as f:
+with open(os.path.join(MODEL_DIR, "random_forest_groundwater_model.pkl"), "rb") as f:
     rf_loaded = pickle.load(f)
 
 # Load scaler
-with open("scaler.pkl", "rb") as f:
+with open(os.path.join(MODEL_DIR, "scaler.pkl"), "rb") as f:
     scaler_loaded = pickle.load(f)
 
 # Load encoders
-with open("district_encoder.pkl", "rb") as f:
+with open(os.path.join(MODEL_DIR, "district_encoder.pkl"), "rb") as f:
     district_encoder = pickle.load(f)
 
-with open("block_encoder.pkl", "rb") as f:
+with open(os.path.join(MODEL_DIR, "block_encoder.pkl"), "rb") as f:
     block_encoder = pickle.load(f)
 
 print("Model, scaler, and encoders loaded successfully!")
