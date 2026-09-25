@@ -18,7 +18,7 @@ import math
 from typing import List, Optional, Literal
 
 from fastapi import APIRouter, HTTPException, Query
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator, ConfigDict
 
 # ---------------------------------------------------------------------------
 # Add the dl directory to sys.path so phase2_prediction_service is importable
@@ -50,6 +50,23 @@ class Phase2PredictRequest(BaseModel):
 
     latitude, longitude: required when model == 'hybrid'.
     """
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "model": "gru",
+                "temporal_sequence": [
+                    [4.50, 1120.0, 27.5, 65.0],
+                    [4.80, 1050.0, 28.0, 63.0],
+                    [5.10, 980.0, 28.2, 61.0],
+                    [5.25, 1020.0, 27.8, 62.5],
+                    [5.40, 950.0, 28.5, 60.0]
+                ],
+                "latitude": 23.5199,
+                "longitude": 86.8289
+            }
+        }
+    )
 
     model: Literal["lstm", "gru", "hybrid"] = Field(
         ...,
@@ -204,6 +221,41 @@ class Phase2LocationPredictResponse(BaseModel):
     prediction_year:    int   = Field(..., description="Year being predicted (sequence_end_year + 1).")
     latitude:           float = Field(..., description="Location latitude (LATITUDE column).")
     longitude:          float = Field(..., description="Location longitude (LONGITUDE column).")
+    historical_sequence: Optional[List[dict]] = Field(
+        default=None,
+        description="Historical observations for the 5-year sequence [{year, wl, rainfall, temperature, humidity}].",
+    )
+
+
+# ---------------------------------------------------------------------------
+# Step-G+: Get available prediction years endpoint
+# ---------------------------------------------------------------------------
+@router.get(
+    "/locations/{location_id}/years",
+    summary="Get available prediction years for a location",
+    description="Returns all valid target prediction years that have 5 preceding consecutive historical observations.",
+)
+def get_location_prediction_years(location_id: str):
+    """
+    Return all valid prediction years for location_id.
+    """
+    try:
+        years = _loc_svc.get_available_prediction_years(location_id)
+        if not years:
+            raise HTTPException(
+                status_code=404,
+                detail=f"No valid consecutive 5-year sequence found for '{location_id}'.",
+            )
+        return {
+            "location_id": location_id,
+            "available_prediction_years": years,
+            "latest_prediction_year": years[-1],
+        }
+    except KeyError:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Location '{location_id}' was not found in the Phase-2 dataset.",
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -214,9 +266,9 @@ class Phase2LocationPredictResponse(BaseModel):
     response_model=Phase2LocationPredictResponse,
     summary="Phase-2 location-based groundwater-level prediction",
     description=(
-        "Given a Phase-2 LOCATION_ID, retrieves the latest valid five-consecutive-year "
-        "historical sequence from the dataset and predicts the groundwater level for the "
-        "following year using the specified Phase-2 deep-learning model."
+        "Given a Phase-2 LOCATION_ID and optional prediction_year, retrieves the "
+        "preceding five-consecutive-year historical sequence and predicts the "
+        "groundwater level using the specified Phase-2 deep-learning model."
     ),
 )
 def location_predict(
@@ -225,13 +277,17 @@ def location_predict(
         ...,
         description="Phase-2 model to use: 'lstm', 'gru', or 'hybrid'.",
     ),
+    prediction_year: Optional[int] = Query(
+        default=None,
+        description="Target prediction year (e.g. 2025). Uses the 5 consecutive observed years immediately before it.",
+    ),
 ) -> Phase2LocationPredictResponse:
     """
     Retrieve historical sequence for location_id and delegate to Step-E.
     """
     # --- Step-G: retrieve historical sequence ---
     try:
-        loc_result = _loc_svc.get_location_sequence(location_id)
+        loc_result = _loc_svc.get_location_sequence(location_id, prediction_year=prediction_year)
     except FileNotFoundError as exc:
         raise HTTPException(status_code=500, detail="Dataset unavailable.")
     except KeyError:
@@ -240,7 +296,8 @@ def location_predict(
             detail=f"Location '{location_id}' was not found in the Phase-2 dataset.",
         )
     except ValueError as exc:
-        raise HTTPException(status_code=404, detail=str(exc))
+        status_code = 400 if prediction_year is not None else 404
+        raise HTTPException(status_code=status_code, detail=str(exc))
     except Exception:
         raise HTTPException(status_code=500, detail="An unexpected error occurred during sequence retrieval.")
 
@@ -262,6 +319,17 @@ def location_predict(
     except Exception:
         raise HTTPException(status_code=500, detail="An unexpected error occurred during prediction.")
 
+    hist_seq = [
+        {
+            "year": int(loc_result.years[i]),
+            "wl": round(float(loc_result.temporal_sequence[i][0]), 2),
+            "rainfall": round(float(loc_result.temporal_sequence[i][1]), 2),
+            "temperature": round(float(loc_result.temporal_sequence[i][2]), 2),
+            "humidity": round(float(loc_result.temporal_sequence[i][3]), 2),
+        }
+        for i in range(len(loc_result.years))
+    ]
+
     return Phase2LocationPredictResponse(
         location_id=loc_result.location_id,
         model=result["model"],
@@ -273,4 +341,5 @@ def location_predict(
         prediction_year=loc_result.prediction_year,
         latitude=loc_result.latitude,
         longitude=loc_result.longitude,
+        historical_sequence=hist_seq,
     )

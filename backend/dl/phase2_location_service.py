@@ -156,6 +156,23 @@ def _find_latest_consecutive_window(years: np.ndarray) -> int | None:
     return None
 
 
+def _find_consecutive_window_for_prediction_year(years: np.ndarray, target_prediction_year: int) -> int | None:
+    """
+    Find the START index of the five-consecutive-year window ending at target_prediction_year - 1.
+    For example: target_prediction_year = 2025 -> requires consecutive [2020, 2021, 2022, 2023, 2024].
+    """
+    n = len(years)
+    if n < _SEQ_LEN:
+        return None
+    target_end_year   = target_prediction_year - 1
+    target_start_year = target_prediction_year - _SEQ_LEN
+    for i in range(n - _SEQ_LEN + 1):
+        if years[i] == target_start_year and years[i + _SEQ_LEN - 1] == target_end_year:
+            if years[i + _SEQ_LEN - 1] - years[i] == _SEQ_LEN - 1:
+                return i
+    return None
+
+
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
@@ -175,25 +192,33 @@ class LocationSequenceResult:
         years: list,
         latitude: float,
         longitude: float,
+        prediction_year: int | None = None,
     ):
         self.location_id        = location_id
         self.temporal_sequence  = temporal_sequence        # list[list[float]], shape (5,4)
         self.years              = years                    # list[int], len 5
         self.sequence_start_year = years[0]
         self.sequence_end_year   = years[-1]
-        self.prediction_year     = years[-1] + 1
+        self.prediction_year     = prediction_year if prediction_year is not None else (years[-1] + 1)
         self.latitude            = latitude
         self.longitude           = longitude
 
 
-def get_location_sequence(location_id: str) -> LocationSequenceResult:
+def get_location_sequence(
+    location_id: str,
+    prediction_year: int | None = None,
+) -> LocationSequenceResult:
     """
-    Retrieve the latest valid five-consecutive-year sequence for a location.
+    Retrieve a valid five-consecutive-year sequence for a location.
 
     Parameters
     ----------
     location_id : str
         Must match the Phase-2 LOCATION_ID format exactly.
+    prediction_year : int, optional
+        Target prediction year. If provided, selects the 5 consecutive
+        annual observations ending at prediction_year - 1.
+        If None, selects the latest valid 5-consecutive-year window.
 
     Returns
     -------
@@ -204,7 +229,7 @@ def get_location_sequence(location_id: str) -> LocationSequenceResult:
     KeyError
         If the location_id is not found in the dataset.
     ValueError
-        If the location exists but has no valid five-consecutive-year window.
+        If no valid five-consecutive-year window exists (or none for requested year).
     FileNotFoundError
         If the dataset file is missing.
     """
@@ -219,14 +244,23 @@ def get_location_sequence(location_id: str) -> LocationSequenceResult:
     grp   = _annual_index[location_id]
     years = grp['YEAR'].values          # sorted ascending
 
-    # --- find latest valid five-consecutive-year window ---
-    start_idx = _find_latest_consecutive_window(years)
-    if start_idx is None:
-        raise ValueError(
-            f"Location '{location_id}' has {len(years)} annual observation(s) "
-            f"(years: {years.tolist()}) but no valid five-consecutive-year "
-            "window exists."
-        )
+    if prediction_year is not None:
+        start_idx = _find_consecutive_window_for_prediction_year(years, prediction_year)
+        if start_idx is None:
+            raise ValueError(
+                f"Insufficient consecutive historical data for this prediction year. "
+                f"Please select another year. "
+                f"Required: 5 consecutive observed years ({prediction_year - _SEQ_LEN} to {prediction_year - 1})."
+            )
+    else:
+        # --- find latest valid five-consecutive-year window ---
+        start_idx = _find_latest_consecutive_window(years)
+        if start_idx is None:
+            raise ValueError(
+                f"Location '{location_id}' has {len(years)} annual observation(s) "
+                f"(years: {years.tolist()}) but no valid five-consecutive-year "
+                "window exists."
+            )
 
     window      = grp.iloc[start_idx : start_idx + _SEQ_LEN]
     window_years= window['YEAR'].tolist()
@@ -243,7 +277,31 @@ def get_location_sequence(location_id: str) -> LocationSequenceResult:
         years=window_years,
         latitude=lat,
         longitude=lon,
+        prediction_year=prediction_year if prediction_year is not None else (window_years[-1] + 1),
     )
+
+
+def get_available_prediction_years(location_id: str) -> list[int]:
+    """
+    Return all valid target prediction years for a location.
+    A year Y is valid iff years contains the 5 consecutive observed years Y-5..Y-1.
+    """
+    _ensure_index()
+    if location_id not in _annual_index:
+        raise KeyError(f"Location '{location_id}' was not found in the Phase-2 dataset.")
+
+    grp   = _annual_index[location_id]
+    years = grp['YEAR'].values
+    n = len(years)
+    if n < _SEQ_LEN:
+        return []
+
+    valid_years = []
+    for i in range(n - _SEQ_LEN + 1):
+        if years[i + _SEQ_LEN - 1] - years[i] == _SEQ_LEN - 1:
+            valid_years.append(int(years[i + _SEQ_LEN - 1] + 1))
+
+    return sorted(list(set(valid_years)))
 
 
 def get_all_location_ids() -> list:

@@ -1,4 +1,7 @@
-const API_URL = "http://localhost:8000/predict";
+const API_BASE_P1 = window.location.origin.includes(':8000') 
+    ? window.location.origin 
+    : 'http://localhost:8000';
+const API_URL = `${API_BASE_P1}/predict`;
 const detailsDiv = document.getElementById("details");
 
 async function fetchPrediction(input) {
@@ -27,6 +30,13 @@ const map = L.map("map", { preferCanvas: true })
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     attribution: "© OpenStreetMap contributors"
 }).addTo(map);
+
+/* Invalidation helper for tab switching */
+window.invalidatePhase1Map = function () {
+    if (map) {
+        setTimeout(() => { map.invalidateSize(); }, 150);
+    }
+};
 
 /* Color based on groundwater depth */
 function getColor(wl) {
@@ -148,7 +158,7 @@ function plotYear(selectedYear) {
             ${selectedYear + 2}: ${pred2.predicted_WL.toFixed(2)} mbgl<br><br>
 
             <b>Risk Category</b><br>
-            ${pred2.risk_category}
+            <span class="risk-badge ${pred2.risk_category.toLowerCase() === 'safe' ? 'risk-safe' : (pred2.risk_category.toLowerCase() === 'warning' ? 'risk-warning' : 'risk-critical')}">${pred2.risk_category}</span>
         `;
                 } catch (err) {
                     detailsDiv.innerHTML = `

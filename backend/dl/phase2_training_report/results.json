@@ -1,0 +1,1464 @@
+{
+  "title": "Phase-2 Deep Learning Sequential Training & Comparative Report",
+  "generated_timestamp": "2026-09-23 11:54:09",
+  "environment": {
+    "os": "Windows 11 (10.0.26200)",
+    "python_version": "3.12.0",
+    "tensorflow_version": "2.21.0",
+    "numpy_version": "2.4.4",
+    "pandas_version": "3.0.2",
+    "scikit_learn_version": "1.8.0",
+    "gpu_available": false,
+    "gpu_device": "None (CPU Execution)",
+    "device_mode": "CPU (Native Optimization)"
+  },
+  "training_configuration": {
+    "sequence_length": 5,
+    "temporal_features": [
+      "WL(mbgl)",
+      "Rainfall",
+      "Temperature",
+      "Humidity"
+    ],
+    "spatial_features": [
+      "LATITUDE",
+      "LONGITUDE"
+    ],
+    "batch_size": 32,
+    "max_epochs": 50,
+    "early_stopping_patience": 7,
+    "optimizer": "Adam",
+    "learning_rate": 0.001,
+    "loss_function": "MSE",
+    "random_seed": 42
+  },
+  "dataset": {
+    "raw_rows": 385386,
+    "annual_rows": 379383,
+    "valid_locations": 29065,
+    "total_sequences": 185356,
+    "train_sequences": 126992,
+    "train_years": "1999\u20132018",
+    "val_sequences": 28914,
+    "val_years": "2019\u20132021",
+    "test_sequences": 21080,
+    "test_years": "2022\u20132023",
+    "excluded_2024_sequences": 8370,
+    "sequence_length": 5,
+    "temporal_features": [
+      "WL(mbgl)",
+      "Rainfall",
+      "Temperature",
+      "Humidity"
+    ],
+    "spatial_features": [
+      "LATITUDE",
+      "LONGITUDE"
+    ]
+  },
+  "models": {
+    "lstm": {
+      "architecture": {
+        "model_name": "Phase2_LSTM_Baseline",
+        "total_parameters": 17729,
+        "trainable_parameters": 17729,
+        "non_trainable_parameters": 0,
+        "approx_model_size_kb": 69.25,
+        "total_layers": 3,
+        "recurrent_layers": 1,
+        "dense_layers": 1,
+        "dropout_layers": 1,
+        "layers": [
+          {
+            "name": "lstm_layer",
+            "type": "LSTM",
+            "output_shape": "(None, 64)",
+            "parameters": 17664,
+            "activation": "tanh"
+          },
+          {
+            "name": "dropout_layer",
+            "type": "Dropout",
+            "output_shape": "(None, 64)",
+            "parameters": 0,
+            "activation": "none"
+          },
+          {
+            "name": "dense_output",
+            "type": "Dense",
+            "output_shape": "(None, 1)",
+            "parameters": 65,
+            "activation": "linear"
+          }
+        ]
+      },
+      "training": {
+        "duration_seconds": 129.88,
+        "epochs_trained": 10,
+        "average_time_per_epoch_sec": 12.99,
+        "best_epoch": 3,
+        "best_val_loss": 0.090243,
+        "early_stopping_triggered": true,
+        "history": {
+          "loss": [
+            0.100098,
+            0.090581,
+            0.091469,
+            0.088692,
+            0.088485,
+            0.087959,
+            0.087635,
+            0.086868,
+            0.085946,
+            0.085225
+          ],
+          "val_loss": [
+            0.091205,
+            0.090345,
+            0.090243,
+            0.091256,
+            0.091756,
+            0.090783,
+            0.090531,
+            0.090716,
+            0.090922,
+            0.091519
+          ]
+        }
+      },
+      "loss_analysis": {
+        "initial_train_loss": 0.100098,
+        "final_train_loss": 0.085225,
+        "minimum_train_loss": 0.085225,
+        "initial_val_loss": 0.091205,
+        "final_val_loss": 0.091519,
+        "minimum_val_loss": 0.090243,
+        "best_epoch": 3,
+        "train_val_loss_gap": 0.006294,
+        "validation_degradation_from_best": 0.001276,
+        "observation": "Training and validation losses converged closely with low generalization gap, indicating healthy fit without severe underfitting or overfitting."
+      },
+      "metrics": {
+        "train": {
+          "mse": 5.630116,
+          "rmse": 2.3728,
+          "mae": 1.4451,
+          "r2": 0.9129,
+          "median_ae": 0.8672,
+          "max_ae": 48.9516,
+          "pct_within_0_5m": 32.25,
+          "pct_within_1_0m": 55.06,
+          "pct_within_2_0m": 77.95
+        },
+        "val": {
+          "mse": 5.836596,
+          "rmse": 2.4159,
+          "mae": 1.4615,
+          "r2": 0.8911,
+          "median_ae": 0.8537,
+          "max_ae": 42.4265,
+          "pct_within_0_5m": 32.68,
+          "pct_within_1_0m": 55.48,
+          "pct_within_2_0m": 77.98
+        },
+        "test": {
+          "mse": 4.936998,
+          "rmse": 2.2219,
+          "mae": 1.3368,
+          "r2": 0.92,
+          "median_ae": 0.836,
+          "max_ae": 49.8883,
+          "pct_within_0_5m": 32.75,
+          "pct_within_1_0m": 56.68,
+          "pct_within_2_0m": 80.8
+        },
+        "backtesting": {
+          "mse": 5.581294,
+          "rmse": 2.3625,
+          "mae": 1.4349,
+          "r2": 0.9111,
+          "median_ae": 0.861,
+          "max_ae": 49.8883,
+          "pct_within_0_5m": 32.38,
+          "pct_within_1_0m": 55.32,
+          "pct_within_2_0m": 78.29
+        }
+      },
+      "plots": {
+        "loss_curve": "D:\\NewE\\College\\Project\\Ground_Water_Prediction\\backend\\dl\\phase2_training_report\\lstm_loss_curve.png",
+        "actual_vs_predicted_test": "D:\\NewE\\College\\Project\\Ground_Water_Prediction\\backend\\dl\\phase2_training_report\\lstm_actual_vs_predicted_test.png",
+        "residuals_distribution": "D:\\NewE\\College\\Project\\Ground_Water_Prediction\\backend\\dl\\phase2_training_report\\lstm_residuals_distribution.png",
+        "error_vs_actual": "D:\\NewE\\College\\Project\\Ground_Water_Prediction\\backend\\dl\\phase2_training_report\\lstm_error_vs_actual.png",
+        "backtesting": "D:\\NewE\\College\\Project\\Ground_Water_Prediction\\backend\\dl\\phase2_training_report\\lstm_backtesting.png"
+      },
+      "summary_file": "D:\\NewE\\College\\Project\\Ground_Water_Prediction\\backend\\dl\\phase2_training_report\\lstm_model_summary.txt"
+    },
+    "gru": {
+      "architecture": {
+        "model_name": "Phase2_GRU_Baseline",
+        "total_parameters": 13505,
+        "trainable_parameters": 13505,
+        "non_trainable_parameters": 0,
+        "approx_model_size_kb": 52.75,
+        "total_layers": 3,
+        "recurrent_layers": 1,
+        "dense_layers": 1,
+        "dropout_layers": 1,
+        "layers": [
+          {
+            "name": "gru_layer",
+            "type": "GRU",
+            "output_shape": "(None, 64)",
+            "parameters": 13440,
+            "activation": "tanh"
+          },
+          {
+            "name": "dropout_layer",
+            "type": "Dropout",
+            "output_shape": "(None, 64)",
+            "parameters": 0,
+            "activation": "none"
+          },
+          {
+            "name": "dense_output",
+            "type": "Dense",
+            "output_shape": "(None, 1)",
+            "parameters": 65,
+            "activation": "linear"
+          }
+        ]
+      },
+      "training": {
+        "duration_seconds": 229.16,
+        "epochs_trained": 18,
+        "average_time_per_epoch_sec": 12.73,
+        "best_epoch": 11,
+        "best_val_loss": 0.085057,
+        "early_stopping_triggered": true,
+        "history": {
+          "loss": [
+            0.100354,
+            0.091093,
+            0.090009,
+            0.08886,
+            0.089503,
+            0.088162,
+            0.087327,
+            0.088152,
+            0.086907,
+            0.08704,
+            0.086556,
+            0.086767,
+            0.084888,
+            0.086449,
+            0.084376,
+            0.083835,
+            0.083603,
+            0.084791
+          ],
+          "val_loss": [
+            0.093034,
+            0.091113,
+            0.090651,
+            0.089052,
+            0.088562,
+            0.088227,
+            0.087087,
+            0.087448,
+            0.085848,
+            0.085982,
+            0.085057,
+            0.086393,
+            0.085241,
+            0.086234,
+            0.087183,
+            0.086137,
+            0.085675,
+            0.086294
+          ]
+        }
+      },
+      "loss_analysis": {
+        "initial_train_loss": 0.100354,
+        "final_train_loss": 0.084791,
+        "minimum_train_loss": 0.083603,
+        "initial_val_loss": 0.093034,
+        "final_val_loss": 0.086294,
+        "minimum_val_loss": 0.085057,
+        "best_epoch": 11,
+        "train_val_loss_gap": 0.001503,
+        "validation_degradation_from_best": 0.001237,
+        "observation": "Training and validation losses converged closely with low generalization gap, indicating healthy fit without severe underfitting or overfitting."
+      },
+      "metrics": {
+        "train": {
+          "mse": 5.345212,
+          "rmse": 2.312,
+          "mae": 1.4046,
+          "r2": 0.9174,
+          "median_ae": 0.8474,
+          "max_ae": 51.2574,
+          "pct_within_0_5m": 33.04,
+          "pct_within_1_0m": 55.82,
+          "pct_within_2_0m": 78.93
+        },
+        "val": {
+          "mse": 5.501148,
+          "rmse": 2.3455,
+          "mae": 1.4358,
+          "r2": 0.8974,
+          "median_ae": 0.8625,
+          "max_ae": 39.1701,
+          "pct_within_0_5m": 32.16,
+          "pct_within_1_0m": 55.18,
+          "pct_within_2_0m": 78.45
+        },
+        "test": {
+          "mse": 4.672365,
+          "rmse": 2.1616,
+          "mae": 1.2821,
+          "r2": 0.9242,
+          "median_ae": 0.8047,
+          "max_ae": 52.9149,
+          "pct_within_0_5m": 33.96,
+          "pct_within_1_0m": 57.99,
+          "pct_within_2_0m": 82.09
+        },
+        "backtesting": {
+          "mse": 5.290548,
+          "rmse": 2.3001,
+          "mae": 1.3951,
+          "r2": 0.9157,
+          "median_ae": 0.845,
+          "max_ae": 52.9149,
+          "pct_within_0_5m": 33.0,
+          "pct_within_1_0m": 55.98,
+          "pct_within_2_0m": 79.23
+        }
+      },
+      "plots": {
+        "loss_curve": "D:\\NewE\\College\\Project\\Ground_Water_Prediction\\backend\\dl\\phase2_training_report\\gru_loss_curve.png",
+        "actual_vs_predicted_test": "D:\\NewE\\College\\Project\\Ground_Water_Prediction\\backend\\dl\\phase2_training_report\\gru_actual_vs_predicted_test.png",
+        "residuals_distribution": "D:\\NewE\\College\\Project\\Ground_Water_Prediction\\backend\\dl\\phase2_training_report\\gru_residuals_distribution.png",
+        "error_vs_actual": "D:\\NewE\\College\\Project\\Ground_Water_Prediction\\backend\\dl\\phase2_training_report\\gru_error_vs_actual.png",
+        "backtesting": "D:\\NewE\\College\\Project\\Ground_Water_Prediction\\backend\\dl\\phase2_training_report\\gru_backtesting.png"
+      },
+      "summary_file": "D:\\NewE\\College\\Project\\Ground_Water_Prediction\\backend\\dl\\phase2_training_report\\gru_model_summary.txt"
+    },
+    "hybrid": {
+      "architecture": {
+        "model_name": "Phase2_Hybrid_SpatioTemporal_GRU",
+        "total_parameters": 14809,
+        "trainable_parameters": 14809,
+        "non_trainable_parameters": 0,
+        "approx_model_size_kb": 57.85,
+        "total_layers": 9,
+        "recurrent_layers": 1,
+        "dense_layers": 4,
+        "dropout_layers": 1,
+        "layers": [
+          {
+            "name": "temporal_input",
+            "type": "InputLayer",
+            "output_shape": "(None, 5, 4)",
+            "parameters": 0,
+            "activation": "none"
+          },
+          {
+            "name": "spatial_input",
+            "type": "InputLayer",
+            "output_shape": "(None, 2)",
+            "parameters": 0,
+            "activation": "none"
+          },
+          {
+            "name": "gru_temporal",
+            "type": "GRU",
+            "output_shape": "(None, 64)",
+            "parameters": 13440,
+            "activation": "tanh"
+          },
+          {
+            "name": "dense_spatial_1",
+            "type": "Dense",
+            "output_shape": "(None, 16)",
+            "parameters": 48,
+            "activation": "relu"
+          },
+          {
+            "name": "dropout_temporal",
+            "type": "Dropout",
+            "output_shape": "(None, 64)",
+            "parameters": 0,
+            "activation": "none"
+          },
+          {
+            "name": "dense_spatial_2",
+            "type": "Dense",
+            "output_shape": "(None, 8)",
+            "parameters": 136,
+            "activation": "relu"
+          },
+          {
+            "name": "fusion_concatenate",
+            "type": "Concatenate",
+            "output_shape": "(None, 72)",
+            "parameters": 0,
+            "activation": "none"
+          },
+          {
+            "name": "dense_fusion",
+            "type": "Dense",
+            "output_shape": "(None, 16)",
+            "parameters": 1168,
+            "activation": "relu"
+          },
+          {
+            "name": "predicted_wl",
+            "type": "Dense",
+            "output_shape": "(None, 1)",
+            "parameters": 17,
+            "activation": "linear"
+          }
+        ]
+      },
+      "training": {
+        "duration_seconds": 126.62,
+        "epochs_trained": 9,
+        "average_time_per_epoch_sec": 14.07,
+        "best_epoch": 2,
+        "best_val_loss": 0.087202,
+        "early_stopping_triggered": true,
+        "history": {
+          "loss": [
+            0.10208,
+            0.091176,
+            0.090545,
+            0.089979,
+            0.089535,
+            0.08718,
+            0.086206,
+            0.086308,
+            0.085099
+          ],
+          "val_loss": [
+            0.090682,
+            0.087202,
+            0.087909,
+            0.091277,
+            0.090231,
+            0.091214,
+            0.091299,
+            0.092489,
+            0.091454
+          ]
+        }
+      },
+      "loss_analysis": {
+        "initial_train_loss": 0.10208,
+        "final_train_loss": 0.085099,
+        "minimum_train_loss": 0.085099,
+        "initial_val_loss": 0.090682,
+        "final_val_loss": 0.091454,
+        "minimum_val_loss": 0.087202,
+        "best_epoch": 2,
+        "train_val_loss_gap": 0.006355,
+        "validation_degradation_from_best": 0.004251,
+        "observation": "Training and validation losses converged closely with low generalization gap, indicating healthy fit without severe underfitting or overfitting."
+      },
+      "metrics": {
+        "train": {
+          "mse": 5.59403,
+          "rmse": 2.3652,
+          "mae": 1.4504,
+          "r2": 0.9135,
+          "median_ae": 0.8977,
+          "max_ae": 49.5969,
+          "pct_within_0_5m": 31.04,
+          "pct_within_1_0m": 53.88,
+          "pct_within_2_0m": 78.01
+        },
+        "val": {
+          "mse": 5.639906,
+          "rmse": 2.3748,
+          "mae": 1.4507,
+          "r2": 0.8948,
+          "median_ae": 0.8823,
+          "max_ae": 41.7721,
+          "pct_within_0_5m": 31.86,
+          "pct_within_1_0m": 54.42,
+          "pct_within_2_0m": 78.39
+        },
+        "test": {
+          "mse": 4.789578,
+          "rmse": 2.1885,
+          "mae": 1.3178,
+          "r2": 0.9223,
+          "median_ae": 0.8362,
+          "max_ae": 49.2331,
+          "pct_within_0_5m": 32.45,
+          "pct_within_1_0m": 56.89,
+          "pct_within_2_0m": 81.47
+        },
+        "backtesting": {
+          "mse": 5.505711,
+          "rmse": 2.3464,
+          "mae": 1.4347,
+          "r2": 0.9123,
+          "median_ae": 0.8874,
+          "max_ae": 49.5969,
+          "pct_within_0_5m": 31.34,
+          "pct_within_1_0m": 54.32,
+          "pct_within_2_0m": 78.49
+        }
+      },
+      "plots": {
+        "loss_curve": "D:\\NewE\\College\\Project\\Ground_Water_Prediction\\backend\\dl\\phase2_training_report\\hybrid_loss_curve.png",
+        "actual_vs_predicted_test": "D:\\NewE\\College\\Project\\Ground_Water_Prediction\\backend\\dl\\phase2_training_report\\hybrid_actual_vs_predicted_test.png",
+        "residuals_distribution": "D:\\NewE\\College\\Project\\Ground_Water_Prediction\\backend\\dl\\phase2_training_report\\hybrid_residuals_distribution.png",
+        "error_vs_actual": "D:\\NewE\\College\\Project\\Ground_Water_Prediction\\backend\\dl\\phase2_training_report\\hybrid_error_vs_actual.png",
+        "backtesting": "D:\\NewE\\College\\Project\\Ground_Water_Prediction\\backend\\dl\\phase2_training_report\\hybrid_backtesting.png"
+      },
+      "summary_file": "D:\\NewE\\College\\Project\\Ground_Water_Prediction\\backend\\dl\\phase2_training_report\\hybrid_model_summary.txt"
+    }
+  },
+  "comparison_table": [
+    {
+      "model": "Phase-2 LSTM Baseline",
+      "total_parameters": 17729,
+      "trainable_parameters": 17729,
+      "total_layers": 3,
+      "training_duration_sec": 129.88,
+      "epochs_trained": 10,
+      "best_val_loss": 0.090243,
+      "test_rmse": 2.2219,
+      "test_mae": 1.3368,
+      "test_r2": 0.92,
+      "backtest_rmse": 2.3625,
+      "backtest_mae": 1.4349,
+      "backtest_r2": 0.9111
+    },
+    {
+      "model": "Phase-2 GRU Baseline",
+      "total_parameters": 13505,
+      "trainable_parameters": 13505,
+      "total_layers": 3,
+      "training_duration_sec": 229.16,
+      "epochs_trained": 18,
+      "best_val_loss": 0.085057,
+      "test_rmse": 2.1616,
+      "test_mae": 1.2821,
+      "test_r2": 0.9242,
+      "backtest_rmse": 2.3001,
+      "backtest_mae": 1.3951,
+      "backtest_r2": 0.9157
+    },
+    {
+      "model": "Phase-2 Hybrid Spatio-Temporal GRU",
+      "total_parameters": 14809,
+      "trainable_parameters": 14809,
+      "total_layers": 9,
+      "training_duration_sec": 126.62,
+      "epochs_trained": 9,
+      "best_val_loss": 0.087202,
+      "test_rmse": 2.1885,
+      "test_mae": 1.3178,
+      "test_r2": 0.9223,
+      "backtest_rmse": 2.3464,
+      "backtest_mae": 1.4347,
+      "backtest_r2": 0.9123
+    }
+  ],
+  "combined_plot": "D:\\NewE\\College\\Project\\Ground_Water_Prediction\\backend\\dl\\phase2_training_report\\phase2_combined_model_comparison.png",
+  "hybrid_improvement_experiment": {
+    "timestamp": "2026-09-23 12:21:57",
+    "tolerance_metric_definition": "Percentage of test predictions where abs(actual - predicted) <= threshold. This is a regression accuracy-style metric representing the percentage of predictions falling within a specified groundwater-level error tolerance.",
+    "variants_evaluated": {
+      "hybrid_v0_baseline": {
+        "name": "Hybrid Baseline (V0)",
+        "description": "Reference architecture: GRU(64) + Spatial(16->8) + Fusion(16->1), Adam(1e-3)",
+        "architecture": {
+          "model_name": "Hybrid_V0_Baseline",
+          "total_parameters": 14809,
+          "trainable_parameters": 14809,
+          "non_trainable_parameters": 0,
+          "approx_model_size_kb": 57.85,
+          "total_layers": 9,
+          "recurrent_layers": 1,
+          "dense_layers": 4,
+          "dropout_layers": 1,
+          "layers": [
+            {
+              "name": "temporal_input",
+              "type": "InputLayer",
+              "output_shape": "(None, 5, 4)",
+              "parameters": 0,
+              "activation": "none"
+            },
+            {
+              "name": "spatial_input",
+              "type": "InputLayer",
+              "output_shape": "(None, 2)",
+              "parameters": 0,
+              "activation": "none"
+            },
+            {
+              "name": "gru_temporal",
+              "type": "GRU",
+              "output_shape": "(None, 64)",
+              "parameters": 13440,
+              "activation": "tanh"
+            },
+            {
+              "name": "dense_spatial_1",
+              "type": "Dense",
+              "output_shape": "(None, 16)",
+              "parameters": 48,
+              "activation": "relu"
+            },
+            {
+              "name": "dropout_temporal",
+              "type": "Dropout",
+              "output_shape": "(None, 64)",
+              "parameters": 0,
+              "activation": "none"
+            },
+            {
+              "name": "dense_spatial_2",
+              "type": "Dense",
+              "output_shape": "(None, 8)",
+              "parameters": 136,
+              "activation": "relu"
+            },
+            {
+              "name": "fusion_concat",
+              "type": "Concatenate",
+              "output_shape": "(None, 72)",
+              "parameters": 0,
+              "activation": "none"
+            },
+            {
+              "name": "dense_fusion",
+              "type": "Dense",
+              "output_shape": "(None, 16)",
+              "parameters": 1168,
+              "activation": "relu"
+            },
+            {
+              "name": "predicted_wl",
+              "type": "Dense",
+              "output_shape": "(None, 1)",
+              "parameters": 17,
+              "activation": "linear"
+            }
+          ]
+        },
+        "training": {
+          "duration_seconds": 153.5,
+          "epochs_trained": 12,
+          "average_time_per_epoch_sec": 12.79,
+          "best_epoch": 5,
+          "best_val_loss": 0.087263,
+          "early_stopping_triggered": true,
+          "history": {
+            "loss": [
+              0.101923,
+              0.09405,
+              0.09261,
+              0.091798,
+              0.089471,
+              0.088482,
+              0.089521,
+              0.087197,
+              0.08951,
+              0.08552,
+              0.086103,
+              0.086566
+            ],
+            "val_loss": [
+              0.090748,
+              0.08922,
+              0.087374,
+              0.08872,
+              0.087263,
+              0.088923,
+              0.090046,
+              0.090338,
+              0.090282,
+              0.092335,
+              0.094129,
+              0.091877
+            ]
+          }
+        },
+        "loss_analysis": {
+          "initial_train_loss": 0.101923,
+          "final_train_loss": 0.086566,
+          "minimum_train_loss": 0.08552,
+          "initial_val_loss": 0.090748,
+          "final_val_loss": 0.091877,
+          "minimum_val_loss": 0.087263,
+          "best_epoch": 5,
+          "train_val_loss_gap": 0.005311,
+          "validation_degradation_from_best": 0.004613,
+          "observation": "Training and validation losses converged closely with low generalization gap, indicating healthy fit without severe underfitting or overfitting."
+        },
+        "metrics": {
+          "test": {
+            "mse": 4.693977,
+            "rmse": 2.1666,
+            "mae": 1.2937,
+            "r2": 0.9239,
+            "median_ae": 0.8182,
+            "max_ae": 53.7483,
+            "pct_within_0_5m": 33.64,
+            "pct_within_1_0m": 57.51,
+            "pct_within_2_0m": 81.8
+          },
+          "backtesting": {
+            "mse": 5.366488,
+            "rmse": 2.3166,
+            "mae": 1.3951,
+            "r2": 0.9145,
+            "median_ae": 0.8437,
+            "max_ae": 53.7483,
+            "pct_within_0_5m": 33.09,
+            "pct_within_1_0m": 56.06,
+            "pct_within_2_0m": 79.22
+          }
+        },
+        "model_path": "D:\\NewE\\College\\Project\\Ground_Water_Prediction\\backend\\dl\\phase2_training_report\\hybrid_v0_baseline.keras"
+      },
+      "hybrid_v1_balanced": {
+        "name": "Hybrid Balanced Spatial (V1)",
+        "description": "Balanced spatial capacity: Spatial(32->16) + Fusion(32->16->1) with Dropout(0.1)",
+        "architecture": {
+          "model_name": "Hybrid_V1_Balanced",
+          "total_parameters": 17201,
+          "trainable_parameters": 17201,
+          "non_trainable_parameters": 0,
+          "approx_model_size_kb": 67.19,
+          "total_layers": 11,
+          "recurrent_layers": 1,
+          "dense_layers": 5,
+          "dropout_layers": 2,
+          "layers": [
+            {
+              "name": "temporal_input",
+              "type": "InputLayer",
+              "output_shape": "(None, 5, 4)",
+              "parameters": 0,
+              "activation": "none"
+            },
+            {
+              "name": "spatial_input",
+              "type": "InputLayer",
+              "output_shape": "(None, 2)",
+              "parameters": 0,
+              "activation": "none"
+            },
+            {
+              "name": "gru_temporal",
+              "type": "GRU",
+              "output_shape": "(None, 64)",
+              "parameters": 13440,
+              "activation": "tanh"
+            },
+            {
+              "name": "dense_spatial_1",
+              "type": "Dense",
+              "output_shape": "(None, 32)",
+              "parameters": 96,
+              "activation": "relu"
+            },
+            {
+              "name": "dropout_temporal",
+              "type": "Dropout",
+              "output_shape": "(None, 64)",
+              "parameters": 0,
+              "activation": "none"
+            },
+            {
+              "name": "dense_spatial_2",
+              "type": "Dense",
+              "output_shape": "(None, 16)",
+              "parameters": 528,
+              "activation": "relu"
+            },
+            {
+              "name": "fusion_concat",
+              "type": "Concatenate",
+              "output_shape": "(None, 80)",
+              "parameters": 0,
+              "activation": "none"
+            },
+            {
+              "name": "dense_fusion_1",
+              "type": "Dense",
+              "output_shape": "(None, 32)",
+              "parameters": 2592,
+              "activation": "relu"
+            },
+            {
+              "name": "dropout_fusion",
+              "type": "Dropout",
+              "output_shape": "(None, 32)",
+              "parameters": 0,
+              "activation": "none"
+            },
+            {
+              "name": "dense_fusion_2",
+              "type": "Dense",
+              "output_shape": "(None, 16)",
+              "parameters": 528,
+              "activation": "relu"
+            },
+            {
+              "name": "predicted_wl",
+              "type": "Dense",
+              "output_shape": "(None, 1)",
+              "parameters": 17,
+              "activation": "linear"
+            }
+          ]
+        },
+        "training": {
+          "duration_seconds": 107.77,
+          "epochs_trained": 8,
+          "average_time_per_epoch_sec": 13.47,
+          "best_epoch": 1,
+          "best_val_loss": 0.091969,
+          "early_stopping_triggered": true,
+          "history": {
+            "loss": [
+              0.111951,
+              0.098962,
+              0.095041,
+              0.095135,
+              0.091973,
+              0.091002,
+              0.089841,
+              0.090841
+            ],
+            "val_loss": [
+              0.091969,
+              0.094845,
+              0.100975,
+              0.100217,
+              0.100393,
+              0.099296,
+              0.103469,
+              0.099736
+            ]
+          }
+        },
+        "loss_analysis": {
+          "initial_train_loss": 0.111951,
+          "final_train_loss": 0.090841,
+          "minimum_train_loss": 0.089841,
+          "initial_val_loss": 0.091969,
+          "final_val_loss": 0.099736,
+          "minimum_val_loss": 0.091969,
+          "best_epoch": 1,
+          "train_val_loss_gap": 0.008895,
+          "validation_degradation_from_best": 0.007767,
+          "observation": "Training and validation losses converged closely with low generalization gap, indicating healthy fit without severe underfitting or overfitting."
+        },
+        "metrics": {
+          "test": {
+            "mse": 5.032998,
+            "rmse": 2.2434,
+            "mae": 1.3928,
+            "r2": 0.9184,
+            "median_ae": 0.9306,
+            "max_ae": 47.3477,
+            "pct_within_0_5m": 28.98,
+            "pct_within_1_0m": 52.75,
+            "pct_within_2_0m": 79.89
+          },
+          "backtesting": {
+            "mse": 5.61716,
+            "rmse": 2.3701,
+            "mae": 1.4787,
+            "r2": 0.9105,
+            "median_ae": 0.9649,
+            "max_ae": 50.3305,
+            "pct_within_0_5m": 28.16,
+            "pct_within_1_0m": 51.37,
+            "pct_within_2_0m": 77.8
+          }
+        },
+        "model_path": "D:\\NewE\\College\\Project\\Ground_Water_Prediction\\backend\\dl\\phase2_training_report\\hybrid_v1_balanced.keras"
+      },
+      "hybrid_v2_adaptive": {
+        "name": "Hybrid Adaptive LR (V2)",
+        "description": "V1 Architecture + ReduceLROnPlateau (factor=0.5, patience=2, min_lr=1e-5)",
+        "architecture": {
+          "model_name": "Hybrid_V2_AdaptiveLR",
+          "total_parameters": 17201,
+          "trainable_parameters": 17201,
+          "non_trainable_parameters": 0,
+          "approx_model_size_kb": 67.19,
+          "total_layers": 11,
+          "recurrent_layers": 1,
+          "dense_layers": 5,
+          "dropout_layers": 2,
+          "layers": [
+            {
+              "name": "temporal_input",
+              "type": "InputLayer",
+              "output_shape": "(None, 5, 4)",
+              "parameters": 0,
+              "activation": "none"
+            },
+            {
+              "name": "spatial_input",
+              "type": "InputLayer",
+              "output_shape": "(None, 2)",
+              "parameters": 0,
+              "activation": "none"
+            },
+            {
+              "name": "gru_temporal",
+              "type": "GRU",
+              "output_shape": "(None, 64)",
+              "parameters": 13440,
+              "activation": "tanh"
+            },
+            {
+              "name": "dense_spatial_1",
+              "type": "Dense",
+              "output_shape": "(None, 32)",
+              "parameters": 96,
+              "activation": "relu"
+            },
+            {
+              "name": "dropout_temporal",
+              "type": "Dropout",
+              "output_shape": "(None, 64)",
+              "parameters": 0,
+              "activation": "none"
+            },
+            {
+              "name": "dense_spatial_2",
+              "type": "Dense",
+              "output_shape": "(None, 16)",
+              "parameters": 528,
+              "activation": "relu"
+            },
+            {
+              "name": "fusion_concat",
+              "type": "Concatenate",
+              "output_shape": "(None, 80)",
+              "parameters": 0,
+              "activation": "none"
+            },
+            {
+              "name": "dense_fusion_1",
+              "type": "Dense",
+              "output_shape": "(None, 32)",
+              "parameters": 2592,
+              "activation": "relu"
+            },
+            {
+              "name": "dropout_fusion",
+              "type": "Dropout",
+              "output_shape": "(None, 32)",
+              "parameters": 0,
+              "activation": "none"
+            },
+            {
+              "name": "dense_fusion_2",
+              "type": "Dense",
+              "output_shape": "(None, 16)",
+              "parameters": 528,
+              "activation": "relu"
+            },
+            {
+              "name": "predicted_wl",
+              "type": "Dense",
+              "output_shape": "(None, 1)",
+              "parameters": 17,
+              "activation": "linear"
+            }
+          ]
+        },
+        "training": {
+          "duration_seconds": 119.15,
+          "epochs_trained": 9,
+          "average_time_per_epoch_sec": 13.24,
+          "best_epoch": 2,
+          "best_val_loss": 0.093843,
+          "early_stopping_triggered": true,
+          "history": {
+            "loss": [
+              0.109709,
+              0.099178,
+              0.096904,
+              0.096146,
+              0.089135,
+              0.088063,
+              0.087557,
+              0.086652,
+              0.085536
+            ],
+            "val_loss": [
+              0.095792,
+              0.093843,
+              0.098772,
+              0.100126,
+              0.098347,
+              0.097053,
+              0.097074,
+              0.09969,
+              0.098921
+            ]
+          }
+        },
+        "loss_analysis": {
+          "initial_train_loss": 0.109709,
+          "final_train_loss": 0.085536,
+          "minimum_train_loss": 0.085536,
+          "initial_val_loss": 0.095792,
+          "final_val_loss": 0.098921,
+          "minimum_val_loss": 0.093843,
+          "best_epoch": 2,
+          "train_val_loss_gap": 0.013385,
+          "validation_degradation_from_best": 0.005078,
+          "observation": "Training and validation losses converged closely with low generalization gap, indicating healthy fit without severe underfitting or overfitting."
+        },
+        "metrics": {
+          "test": {
+            "mse": 5.137444,
+            "rmse": 2.2666,
+            "mae": 1.4267,
+            "r2": 0.9167,
+            "median_ae": 0.9805,
+            "max_ae": 47.2331,
+            "pct_within_0_5m": 27.15,
+            "pct_within_1_0m": 50.8,
+            "pct_within_2_0m": 79.19
+          },
+          "backtesting": {
+            "mse": 5.756444,
+            "rmse": 2.3993,
+            "mae": 1.5202,
+            "r2": 0.9083,
+            "median_ae": 1.0129,
+            "max_ae": 48.9163,
+            "pct_within_0_5m": 26.51,
+            "pct_within_1_0m": 49.48,
+            "pct_within_2_0m": 76.94
+          }
+        },
+        "model_path": "D:\\NewE\\College\\Project\\Ground_Water_Prediction\\backend\\dl\\phase2_training_report\\hybrid_v2_adaptive.keras"
+      },
+      "hybrid_v3_stacked": {
+        "name": "Hybrid Stacked GRU (V3)",
+        "description": "Stacked temporal GRU(64->32) + Spatial(32->16) + Hierarchical Fusion + ReduceLROnPlateau",
+        "architecture": {
+          "model_name": "Hybrid_V3_Stacked",
+          "total_parameters": 25585,
+          "trainable_parameters": 25585,
+          "non_trainable_parameters": 0,
+          "approx_model_size_kb": 99.94,
+          "total_layers": 12,
+          "recurrent_layers": 2,
+          "dense_layers": 5,
+          "dropout_layers": 2,
+          "layers": [
+            {
+              "name": "temporal_input",
+              "type": "InputLayer",
+              "output_shape": "(None, 5, 4)",
+              "parameters": 0,
+              "activation": "none"
+            },
+            {
+              "name": "gru_temporal_1",
+              "type": "GRU",
+              "output_shape": "(None, 5, 64)",
+              "parameters": 13440,
+              "activation": "tanh"
+            },
+            {
+              "name": "dropout_temporal_1",
+              "type": "Dropout",
+              "output_shape": "(None, 5, 64)",
+              "parameters": 0,
+              "activation": "none"
+            },
+            {
+              "name": "spatial_input",
+              "type": "InputLayer",
+              "output_shape": "(None, 2)",
+              "parameters": 0,
+              "activation": "none"
+            },
+            {
+              "name": "gru_temporal_2",
+              "type": "GRU",
+              "output_shape": "(None, 32)",
+              "parameters": 9408,
+              "activation": "tanh"
+            },
+            {
+              "name": "dense_spatial_1",
+              "type": "Dense",
+              "output_shape": "(None, 32)",
+              "parameters": 96,
+              "activation": "relu"
+            },
+            {
+              "name": "dropout_temporal_2",
+              "type": "Dropout",
+              "output_shape": "(None, 32)",
+              "parameters": 0,
+              "activation": "none"
+            },
+            {
+              "name": "dense_spatial_2",
+              "type": "Dense",
+              "output_shape": "(None, 16)",
+              "parameters": 528,
+              "activation": "relu"
+            },
+            {
+              "name": "fusion_concat",
+              "type": "Concatenate",
+              "output_shape": "(None, 48)",
+              "parameters": 0,
+              "activation": "none"
+            },
+            {
+              "name": "dense_fusion_1",
+              "type": "Dense",
+              "output_shape": "(None, 32)",
+              "parameters": 1568,
+              "activation": "relu"
+            },
+            {
+              "name": "dense_fusion_2",
+              "type": "Dense",
+              "output_shape": "(None, 16)",
+              "parameters": 528,
+              "activation": "relu"
+            },
+            {
+              "name": "predicted_wl",
+              "type": "Dense",
+              "output_shape": "(None, 1)",
+              "parameters": 17,
+              "activation": "linear"
+            }
+          ]
+        },
+        "training": {
+          "duration_seconds": 203.94,
+          "epochs_trained": 9,
+          "average_time_per_epoch_sec": 22.66,
+          "best_epoch": 2,
+          "best_val_loss": 0.08726,
+          "early_stopping_triggered": true,
+          "history": {
+            "loss": [
+              0.112674,
+              0.10445,
+              0.098482,
+              0.100479,
+              0.090244,
+              0.088197,
+              0.087313,
+              0.085551,
+              0.084651
+            ],
+            "val_loss": [
+              0.090272,
+              0.08726,
+              0.087635,
+              0.088062,
+              0.090701,
+              0.092656,
+              0.094659,
+              0.092944,
+              0.097853
+            ]
+          }
+        },
+        "loss_analysis": {
+          "initial_train_loss": 0.112674,
+          "final_train_loss": 0.084651,
+          "minimum_train_loss": 0.084651,
+          "initial_val_loss": 0.090272,
+          "final_val_loss": 0.097853,
+          "minimum_val_loss": 0.08726,
+          "best_epoch": 2,
+          "train_val_loss_gap": 0.013202,
+          "validation_degradation_from_best": 0.010593,
+          "observation": "Training and validation losses converged closely with low generalization gap, indicating healthy fit without severe underfitting or overfitting."
+        },
+        "metrics": {
+          "test": {
+            "mse": 4.960902,
+            "rmse": 2.2273,
+            "mae": 1.353,
+            "r2": 0.9196,
+            "median_ae": 0.9025,
+            "max_ae": 46.4431,
+            "pct_within_0_5m": 30.03,
+            "pct_within_1_0m": 54.15,
+            "pct_within_2_0m": 81.28
+          },
+          "backtesting": {
+            "mse": 5.647583,
+            "rmse": 2.3765,
+            "mae": 1.4584,
+            "r2": 0.91,
+            "median_ae": 0.9337,
+            "max_ae": 49.7139,
+            "pct_within_0_5m": 29.11,
+            "pct_within_1_0m": 52.63,
+            "pct_within_2_0m": 78.6
+          }
+        },
+        "model_path": "D:\\NewE\\College\\Project\\Ground_Water_Prediction\\backend\\dl\\phase2_training_report\\hybrid_v3_stacked.keras"
+      }
+    },
+    "selected_best_variant": {
+      "key": "hybrid_v0_baseline",
+      "name": "Hybrid Baseline (V0)",
+      "description": "Reference architecture: GRU(64) + Spatial(16->8) + Fusion(16->1), Adam(1e-3)",
+      "parameters": 14809,
+      "best_val_loss": 0.087263,
+      "test_metrics": {
+        "mse": 4.693977,
+        "rmse": 2.1666,
+        "mae": 1.2937,
+        "r2": 0.9239,
+        "median_ae": 0.8182,
+        "max_ae": 53.7483,
+        "pct_within_0_5m": 33.64,
+        "pct_within_1_0m": 57.51,
+        "pct_within_2_0m": 81.8
+      },
+      "backtest_metrics": {
+        "mse": 5.366488,
+        "rmse": 2.3166,
+        "mae": 1.3951,
+        "r2": 0.9145,
+        "median_ae": 0.8437,
+        "max_ae": 53.7483,
+        "pct_within_0_5m": 33.09,
+        "pct_within_1_0m": 56.06,
+        "pct_within_2_0m": 79.22
+      },
+      "model_path": "D:\\NewE\\College\\Project\\Ground_Water_Prediction\\backend\\dl\\phase2_training_report\\hybrid_v0_baseline.keras"
+    },
+    "comparison_against_baselines": {
+      "lstm": {
+        "mse": 4.936998,
+        "rmse": 2.2219,
+        "mae": 1.3368,
+        "r2": 0.92,
+        "median_ae": 0.836,
+        "max_ae": 49.8883,
+        "pct_within_0_5m": 32.75,
+        "pct_within_1_0m": 56.68,
+        "pct_within_2_0m": 80.8
+      },
+      "gru": {
+        "mse": 4.672365,
+        "rmse": 2.1616,
+        "mae": 1.2821,
+        "r2": 0.9242,
+        "median_ae": 0.8047,
+        "max_ae": 52.9149,
+        "pct_within_0_5m": 33.96,
+        "pct_within_1_0m": 57.99,
+        "pct_within_2_0m": 82.09
+      },
+      "hybrid_baseline_run1": {
+        "mse": 4.789532,
+        "rmse": 2.1885,
+        "mae": 1.3178,
+        "r2": 0.9223,
+        "median_ae": 0.8362,
+        "max_ae": 49.2331,
+        "pct_within_0_5m": 32.45,
+        "pct_within_1_0m": 56.89,
+        "pct_within_2_0m": 81.47,
+        "note": "Main sequential pipeline (Run 1) result"
+      },
+      "best_hybrid_variant_v0_run2": {
+        "mse": 4.693977,
+        "rmse": 2.1666,
+        "mae": 1.2937,
+        "r2": 0.9239,
+        "median_ae": 0.8182,
+        "max_ae": 53.7483,
+        "pct_within_0_5m": 33.64,
+        "pct_within_1_0m": 57.51,
+        "pct_within_2_0m": 81.8,
+        "note": "Dedicated ablation experiment (Run 2) baseline reference, which achieved best performance among tested variants (V0 > V1, V2, V3)"
+      }
+    },
+    "plots": {
+      "validation_loss_comparison": "D:\\NewE\\College\\Project\\Ground_Water_Prediction\\backend\\dl\\phase2_training_report\\hybrid_variants_validation_loss_comparison.png",
+      "improved_actual_vs_predicted": "D:\\NewE\\College\\Project\\Ground_Water_Prediction\\backend\\dl\\phase2_training_report\\hybrid_improved_actual_vs_predicted.png",
+      "improved_residuals_distribution": "D:\\NewE\\College\\Project\\Ground_Water_Prediction\\backend\\dl\\phase2_training_report\\hybrid_improved_residuals_distribution.png",
+      "improved_error_vs_actual": "D:\\NewE\\College\\Project\\Ground_Water_Prediction\\backend\\dl\\phase2_training_report\\hybrid_improved_error_vs_actual.png",
+      "improved_backtesting": "D:\\NewE\\College\\Project\\Ground_Water_Prediction\\backend\\dl\\phase2_training_report\\hybrid_improved_backtesting.png",
+      "tolerance_accuracy_comparison": "D:\\NewE\\College\\Project\\Ground_Water_Prediction\\backend\\dl\\phase2_training_report\\hybrid_tolerance_accuracy_comparison.png",
+      "hybrid_vs_lstm_gru_comparison": "D:\\NewE\\College\\Project\\Ground_Water_Prediction\\backend\\dl\\phase2_training_report\\hybrid_vs_lstm_gru_comparison.png"
+    }
+  },
+  "hybrid_final_one_shot_experiment": {
+    "timestamp": "2026-09-23 23:18:17",
+    "candidates_evaluated": {
+      "baseline_v0": {
+        "name": "Hybrid Baseline (V0)",
+        "description": "Reference architecture: GRU(64) + Spatial(16->8) + Fusion(16->1), MSE",
+        "parameters": 14809,
+        "training_time_sec": 137.17,
+        "epochs_trained": 11,
+        "val_metrics": {
+          "mse": 5.6751,
+          "rmse": 2.3822,
+          "mae": 1.4466,
+          "r2": 0.8942,
+          "median_ae": 0.866,
+          "max_ae": 43.3579,
+          "pct_within_0_5m": 32.51,
+          "pct_within_1_0m": 54.87,
+          "pct_within_2_0m": 78.35
+        }
+      },
+      "candidate_a": {
+        "name": "Candidate A (Residual Skip Fusion)",
+        "description": "Direct temporal skip connection (GRU 64 -> Output) concatenated with spatial modulation (16)",
+        "parameters": 14873,
+        "training_time_sec": 200.31,
+        "epochs_trained": 16,
+        "val_metrics": {
+          "mse": 5.533288,
+          "rmse": 2.3523,
+          "mae": 1.4226,
+          "r2": 0.8968,
+          "median_ae": 0.8438,
+          "max_ae": 43.7167,
+          "pct_within_0_5m": 32.93,
+          "pct_within_1_0m": 56.11,
+          "pct_within_2_0m": 78.91
+        }
+      },
+      "candidate_b": {
+        "name": "Candidate B (LayerNorm + Residual Skip)",
+        "description": "LayerNormalization on temporal & spatial representations before residual skip fusion",
+        "parameters": 15017,
+        "training_time_sec": 127.64,
+        "epochs_trained": 9,
+        "val_metrics": {
+          "mse": 5.933428,
+          "rmse": 2.4359,
+          "mae": 1.5196,
+          "r2": 0.8893,
+          "median_ae": 0.9687,
+          "max_ae": 44.7825,
+          "pct_within_0_5m": 26.6,
+          "pct_within_1_0m": 51.36,
+          "pct_within_2_0m": 77.9
+        }
+      },
+      "candidate_c": {
+        "name": "Candidate C (Huber Robust Loss)",
+        "description": "Baseline V0 architecture trained with Huber loss (delta=1.0) to dampen outlier gradient pull",
+        "parameters": 14809,
+        "training_time_sec": 204.26,
+        "epochs_trained": 15,
+        "val_metrics": {
+          "mse": 5.588451,
+          "rmse": 2.364,
+          "mae": 1.4392,
+          "r2": 0.8958,
+          "median_ae": 0.8897,
+          "max_ae": 48.1311,
+          "pct_within_0_5m": 30.7,
+          "pct_within_1_0m": 54.4,
+          "pct_within_2_0m": 78.95
+        }
+      }
+    },
+    "selected_candidate_via_validation": {
+      "key": "candidate_a",
+      "name": "Candidate A (Residual Skip Fusion)",
+      "parameters": 14873,
+      "val_rmse": 2.3523
+    },
+    "test_comparison": {
+      "baseline_v0": {
+        "parameters": 14809,
+        "test_metrics": {
+          "mse": 4.829207,
+          "rmse": 2.1975,
+          "mae": 1.3276,
+          "r2": 0.9217,
+          "median_ae": 0.8438,
+          "max_ae": 51.2314,
+          "pct_within_0_5m": 32.58,
+          "pct_within_1_0m": 56.33,
+          "pct_within_2_0m": 81.18
+        },
+        "backtest_metrics": {
+          "mse": 5.407744,
+          "rmse": 2.3255,
+          "mae": 1.4103,
+          "r2": 0.9138,
+          "median_ae": 0.8569,
+          "max_ae": 52.1331,
+          "pct_within_0_5m": 32.48,
+          "pct_within_1_0m": 55.53,
+          "pct_within_2_0m": 78.95
+        }
+      },
+      "selected_candidate": {
+        "parameters": 14873,
+        "test_metrics": {
+          "mse": 4.902193,
+          "rmse": 2.2141,
+          "mae": 1.3227,
+          "r2": 0.9205,
+          "median_ae": 0.8369,
+          "max_ae": 50.4842,
+          "pct_within_0_5m": 32.52,
+          "pct_within_1_0m": 56.89,
+          "pct_within_2_0m": 81.47
+        },
+        "backtest_metrics": {
+          "mse": 5.413351,
+          "rmse": 2.3267,
+          "mae": 1.4097,
+          "r2": 0.9137,
+          "median_ae": 0.8535,
+          "max_ae": 51.1374,
+          "pct_within_0_5m": 32.43,
+          "pct_within_1_0m": 55.8,
+          "pct_within_2_0m": 79.02
+        }
+      },
+      "metric_deltas_candidate_minus_baseline": {
+        "rmse_improvement": -0.0166,
+        "mae_improvement": 0.0049,
+        "r2_improvement": -0.0012
+      },
+      "is_genuine_improvement": false,
+      "verdict": "NO GENUINE IMPROVEMENT FOUND. The controlled one-shot improvement experiment did not produce a genuine improvement over the baseline Hybrid under the existing evaluation protocol."
+    },
+    "plots": {
+      "candidates_val_loss": "D:\\NewE\\College\\Project\\Ground_Water_Prediction\\backend\\dl\\phase2_training_report\\final_hybrid_candidates_val_loss.png",
+      "candidate_actual_vs_predicted": "D:\\NewE\\College\\Project\\Ground_Water_Prediction\\backend\\dl\\phase2_training_report\\final_hybrid_candidate_actual_vs_predicted.png",
+      "candidate_residuals": "D:\\NewE\\College\\Project\\Ground_Water_Prediction\\backend\\dl\\phase2_training_report\\final_hybrid_candidate_residuals_distribution.png",
+      "tolerance_accuracy_comparison": "D:\\NewE\\College\\Project\\Ground_Water_Prediction\\backend\\dl\\phase2_training_report\\final_hybrid_tolerance_accuracy_comparison.png",
+      "candidate_backtesting": "D:\\NewE\\College\\Project\\Ground_Water_Prediction\\backend\\dl\\phase2_training_report\\final_hybrid_candidate_backtesting.png"
+    }
+  }
+}

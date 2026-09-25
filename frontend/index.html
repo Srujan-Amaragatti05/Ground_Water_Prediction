@@ -3,7 +3,8 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Groundwater Wells Map</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Groundwater Level Monitoring & Prediction System</title>
 
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -12,357 +13,470 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
 
+    <!-- Custom Modern Stylesheet -->
     <link rel="stylesheet" href="styles.css" />
-
-    <!-- <style>
-        html,
-        body {
-            height: 100%;
-            margin: 0;
-        }
-
-        h1 {
-            text-align: center;
-            margin: 10px 0;
-        }
-
-        #controls {
-            width: 90%;
-            margin: 0 auto 10px auto;
-            display: flex;
-            justify-content: flex-end;
-        }
-
-        select {
-            padding: 6px 10px;
-            font-size: 14px;
-        }
-
-        #map-container {
-            height: 80vh;
-            width: 90%;
-            margin: auto;
-            border: 1px solid #000;
-            border-radius: 12px;
-            overflow: hidden;
-        }
-
-        #map {
-            height: 100%;
-            width: 100%;
-        }
-
-        .legend {
-            background: white;
-            border-radius: 5px;
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
-            padding: 10px;
-            font-size: 13px;
-            line-height: 18px;
-        }
-
-        .legend span {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            margin-right: 6px;
-        }
-
-        .no-scrollbar {
-            /* Hide scrollbar for Chrome, Safari, and Opera */
-            -webkit-scrollbar: none;
-            /* Hide scrollbar for IE and Edge */
-            -ms-overflow-style: none;
-            /* Hide scrollbar for Firefox */
-            scrollbar-width: none;
-        }
-
-        body {
-            overflow-y: scroll;
-            /* Enables scrolling */
-            -ms-overflow-style: none;
-            /* Hides scrollbar in Internet Explorer and Edge */
-            scrollbar-width: none;
-            /* Hides scrollbar in Firefox */
-        }
-
-        body::-webkit-scrollbar {
-            display: none;
-            /* Hides scrollbar in WebKit browsers (Chrome, Safari, Edge) */
-        }
-    </style> -->
 </head>
 
 <body>
 
-    <h1>Groundwater Wells Map (Andhra Pradesh)</h1>
+    <!-- ===================================================================== -->
+    <!-- App Header & Navigation Tabs                                          -->
+    <!-- ===================================================================== -->
+    <header class="app-header">
+        <div class="header-content">
+            <div class="brand">
+                <h1>
+                    <span>Groundwater Monitoring & Prediction System</span>
+                    <span class="badge-version">v2.0 DL</span>
+                </h1>
+                <p>Comparative Evaluation: Regional Random Forest &amp; Multi-Branch Spatio-Temporal Deep Learning (LSTM / GRU / Hybrid)</p>
+            </div>
 
-    <div id="controls">
-        <label>
-            Year:&nbsp;
-            <select id="yearSelect"></select>
-        </label>
-    </div>
-
-    <div id="map-container">
-        <div id="map"></div>
-    </div>
-
-    <!-- Manual Prediction Section -->
-    <div id="manual-section">
-        <h3>Manual Groundwater Prediction</h3>
-
-        <div class="form-row">
-            <label>DISTRICT</label>
-            <input type="text" id="m_district" placeholder="e.g. Krishna">
+            <!-- Tab Switcher -->
+            <nav class="nav-tabs" role="tablist">
+                <button class="tab-btn active" data-tab="tab-phase2" id="tab-btn-p2">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                    Phase 2: All-India Deep Learning
+                </button>
+                <button class="tab-btn" data-tab="tab-phase1" id="tab-btn-p1">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2c-4 4.5-8 9-8 13.5C4 19.98 7.58 23 12 23s8-3.02 8-7.5C20 11 16 6.5 12 2z"/></svg>
+                    Phase 1: Regional (Andhra Pradesh)
+                </button>
+                <button class="tab-btn" data-tab="tab-benchmarks" id="tab-btn-bm">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+                    Evaluation Benchmarks
+                </button>
+            </nav>
         </div>
+    </header>
 
-        <div class="form-row">
-            <label>BLOCK</label>
-            <input type="text" id="m_block" placeholder="e.g. Vijayawada Rural">
-        </div>
+    <!-- ===================================================================== -->
+    <!-- Main Content Area                                                     -->
+    <!-- ===================================================================== -->
+    <main class="main-content">
 
-        <div class="form-row">
-            <label>LATITUDE</label>
-            <input type="number" id="m_latitude" step="0.0001">
-        </div>
+        <!-- ================================================================= -->
+        <!-- TAB 1 (DEFAULT): PHASE 2 ALL-INDIA DEEP LEARNING                  -->
+        <!-- ================================================================= -->
+        <section id="tab-phase2" class="tab-pane active">
 
-        <div class="form-row">
-            <label>LONGITUDE</label>
-            <input type="number" id="m_longitude" step="0.0001">
-        </div>
+            <!-- ------------------------------------------------------------- -->
+            <!-- SECTION 1: EXISTING MONITORING STATIONS                       -->
+            <!-- ------------------------------------------------------------- -->
+            <div class="phase2-section">
+                <div class="section-header">
+                    <h2>1. Existing Monitoring Stations Prediction</h2>
+                    <p>Select a verified monitoring station, choose your target prediction year, and execute LSTM, GRU, and Hybrid Spatio-Temporal DL models in parallel without manual feature entry.</p>
+                </div>
 
-        <div class="form-row">
-            <label>YEAR</label>
-            <input type="number" id="m_year" placeholder="2025">
-        </div>
+                <!-- Filter & Prediction Year Bar -->
+                <div class="control-bar">
+                    <div class="filter-group">
+                        <div class="filter-item">
+                            <label for="p2-state-select">State / UT:</label>
+                            <select id="p2-state-select">
+                                <option value="">Loading States...</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label for="p2-district-select">District:</label>
+                            <select id="p2-district-select">
+                                <option value="">All Districts</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label for="p2-station-select">Monitoring Station:</label>
+                            <select id="p2-station-select">
+                                <option value="">Select Station</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label for="p2-pred-year-select">Prediction Year:</label>
+                            <select id="p2-pred-year-select" style="min-width: 130px; font-weight: 700; color: #1e3a8a;">
+                                <option value="">Select Station</option>
+                            </select>
+                        </div>
+                    </div>
 
-        <div class="form-row">
-            <label>MONTH</label>
-            <input type="number" id="m_month" placeholder="6">
-        </div>
+                    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                        <button id="p2-quick-test-btn" class="btn btn-accent" title="Select West Bengal (Purulia - Leadson Station)">
+                            ★ Test Location: West Bengal
+                        </button>
+                        <button id="p2-station-predict-btn" class="btn btn-primary" style="padding: 8px 20px; font-size: 0.95rem;">
+                            Predict All Models
+                        </button>
+                    </div>
+                </div>
 
-        <button id="manualPredictBtn">Predict</button>
+                <div style="font-size: 0.8rem; color: #64748b; margin-top: -8px; margin-bottom: 14px; padding-left: 6px;">
+                    ℹ <em><strong>Prediction Year:</strong> Predicts groundwater level for this target year using the five consecutive observed years immediately before it (e.g., Year 2025 uses observations from 2020–2024).</em>
+                </div>
 
-        <div id="manualResult"></div>
-    </div>
+                <!-- Status / Error Notification Alert -->
+                <div id="p2-station-status"></div>
 
-    <!-- Scripts -->
-    
-    
-    <div id="details" style="width:90%;margin:15px auto;padding:12px;
-            border:1px solid #ccc;border-radius:8px;
-            font-family:Arial, sans-serif;">
-        <b>Well Details</b><br>
-        Click a well marker to see prediction.
-    </div>
-    
+                <!-- Map & Results Dashboard Grid -->
+                <div class="dashboard-grid">
+                    <!-- Leaflet All-India Map -->
+                    <div class="map-card">
+                        <div id="phase2-map" class="map-element"></div>
+                    </div>
+
+                    <!-- Side Panel: Metadata & Multi-Model Prediction Cards -->
+                    <div class="side-panel">
+                        <!-- Station Metadata Card -->
+                        <div class="card">
+                            <div class="card-title">
+                                <span>Station Metadata</span>
+                                <span class="badge-version" style="background:#e0e7ff;color:#1e3a8a;">CGWB Station</span>
+                            </div>
+                            <div id="p2-station-metadata">
+                                <p style="color:#64748b;font-size:0.875rem;">Click any station marker on the map or select from the dropdown above.</p>
+                            </div>
+                        </div>
+
+                        <!-- Multi-Model Prediction Results Card -->
+                        <div class="card">
+                            <div class="card-title">
+                                <span>Prediction Results</span>
+                                <span id="p2-station-target-badge" class="badge-version" style="background:#dbeafe;color:#1e40af;">All 3 Models</span>
+                            </div>
+                            <div id="p2-station-results">
+                                <p style="color:#64748b;font-size:0.875rem;">Select a station, verify the prediction year, and click <strong>Predict All Models</strong>.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Collapsible Historical Sequence Table (For Academic Transparency) -->
+                <details class="manual-accordion" id="p2-history-accordion" style="margin-top: 18px;">
+                    <summary>
+                        📊 View 5-Year Historical Observations Used for Prediction
+                    </summary>
+                    <div class="accordion-body">
+                        <div id="p2-station-history-table">
+                            <p style="color:#64748b;font-size:0.875rem;">Run prediction on a station to view its preceding 5-year observation sequence.</p>
+                        </div>
+                    </div>
+                </details>
+            </div>
+
+            <!-- ------------------------------------------------------------- -->
+            <!-- SECTION 2: NEW LOCATION / NEW WELL PREDICTION                 -->
+            <!-- ------------------------------------------------------------- -->
+            <div class="phase2-section" style="margin-top: 36px; padding-top: 24px; border-top: 2px dashed #cbd5e1;">
+                <div class="section-header">
+                    <h2>2. New Well / Location Prediction</h2>
+                    <p>For custom coordinates or unindexed wells: enter geographic coordinates and five consecutive years of observations to predict the subsequent target year across all 3 deep-learning models simultaneously.</p>
+                </div>
+
+                <div class="card" style="margin-top: 14px;">
+                    <!-- Coordinates Row -->
+                    <div style="font-weight: 700; margin-bottom: 8px; color: #1e3a8a;">Location Coordinates</div>
+                    <div class="form-grid" style="grid-template-columns: 1fr 1fr; max-width: 480px; margin-bottom: 16px;">
+                        <div class="form-group">
+                            <label for="p2_new_lat">Latitude (°N)</label>
+                            <input type="number" step="0.0001" id="p2_new_lat" placeholder="e.g. 23.5199" value="23.5199">
+                        </div>
+                        <div class="form-group">
+                            <label for="p2_new_lon">Longitude (°E)</label>
+                            <input type="number" step="0.0001" id="p2_new_lon" placeholder="e.g. 86.8289" value="86.8289">
+                        </div>
+                    </div>
+
+                    <!-- 5-Year Consecutive Observations -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap:wrap; gap:8px;">
+                        <div style="font-weight: 700; color: #1e3a8a;">Five Consecutive Historical Observation Years</div>
+                        <button id="p2-new-load-preset-btn" class="btn btn-outline" style="font-size: 0.8rem; padding: 4px 10px;">
+                            Load Selected Station Data as Preset
+                        </button>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:130px;">Observation Year</th>
+                                    <th>Groundwater Depth (mbgl)</th>
+                                    <th>Rainfall (mm)</th>
+                                    <th>Temperature (°C)</th>
+                                    <th>Humidity (%)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><input type="number" id="p2_new_yr_0" value="2020" style="width:90px;font-weight:600;"></td>
+                                    <td><input type="number" step="0.01" id="p2_new_wl_0" value="4.50" style="width:100%;"></td>
+                                    <td><input type="number" step="0.1" id="p2_new_rain_0" value="1120.0" style="width:100%;"></td>
+                                    <td><input type="number" step="0.1" id="p2_new_temp_0" value="27.5" style="width:100%;"></td>
+                                    <td><input type="number" step="0.1" id="p2_new_hum_0" value="65.0" style="width:100%;"></td>
+                                </tr>
+                                <tr>
+                                    <td><input type="number" id="p2_new_yr_1" value="2021" style="width:90px;font-weight:600;"></td>
+                                    <td><input type="number" step="0.01" id="p2_new_wl_1" value="4.80" style="width:100%;"></td>
+                                    <td><input type="number" step="0.1" id="p2_new_rain_1" value="1050.0" style="width:100%;"></td>
+                                    <td><input type="number" step="0.1" id="p2_new_temp_1" value="28.0" style="width:100%;"></td>
+                                    <td><input type="number" step="0.1" id="p2_new_hum_1" value="63.0" style="width:100%;"></td>
+                                </tr>
+                                <tr>
+                                    <td><input type="number" id="p2_new_yr_2" value="2022" style="width:90px;font-weight:600;"></td>
+                                    <td><input type="number" step="0.01" id="p2_new_wl_2" value="5.10" style="width:100%;"></td>
+                                    <td><input type="number" step="0.1" id="p2_new_rain_2" value="980.0" style="width:100%;"></td>
+                                    <td><input type="number" step="0.1" id="p2_new_temp_2" value="28.2" style="width:100%;"></td>
+                                    <td><input type="number" step="0.1" id="p2_new_hum_2" value="61.0" style="width:100%;"></td>
+                                </tr>
+                                <tr>
+                                    <td><input type="number" id="p2_new_yr_3" value="2023" style="width:90px;font-weight:600;"></td>
+                                    <td><input type="number" step="0.01" id="p2_new_wl_3" value="5.25" style="width:100%;"></td>
+                                    <td><input type="number" step="0.1" id="p2_new_rain_3" value="1020.0" style="width:100%;"></td>
+                                    <td><input type="number" step="0.1" id="p2_new_temp_3" value="27.8" style="width:100%;"></td>
+                                    <td><input type="number" step="0.1" id="p2_new_hum_3" value="62.5" style="width:100%;"></td>
+                                </tr>
+                                <tr>
+                                    <td><input type="number" id="p2_new_yr_4" value="2024" style="width:90px;font-weight:600;"></td>
+                                    <td><input type="number" step="0.01" id="p2_new_wl_4" value="5.40" style="width:100%;"></td>
+                                    <td><input type="number" step="0.1" id="p2_new_rain_4" value="950.0" style="width:100%;"></td>
+                                    <td><input type="number" step="0.1" id="p2_new_temp_4" value="28.5" style="width:100%;"></td>
+                                    <td><input type="number" step="0.1" id="p2_new_hum_4" value="60.0" style="width:100%;"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Target Prediction Year & Predict Action -->
+                    <div style="margin-top: 14px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;">
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <label for="p2_new_pred_year" style="font-weight:700;font-size:0.9rem;">Target Prediction Year:</label>
+                            <input type="number" id="p2_new_pred_year" value="2025" style="width:110px;font-weight:700;color:#1e3a8a;">
+                            <span style="font-size:0.8rem;color:#64748b;">(Must be Year 5 + 1)</span>
+                        </div>
+
+                        <button id="p2-new-predict-btn" class="btn btn-primary" style="padding: 8px 24px; font-size: 0.95rem;">
+                            Predict All Models (New Location)
+                        </button>
+                    </div>
+
+                    <!-- New Location Status / Error Container -->
+                    <div id="p2-new-status" style="margin-top:10px;"></div>
+
+                    <!-- New Location Results Container -->
+                    <div id="p2-new-results" style="margin-top: 16px;"></div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- TAB 2: PHASE 1 REGIONAL (ANDHRA PRADESH)                          -->
+        <!-- ================================================================= -->
+        <section id="tab-phase1" class="tab-pane">
+            <div class="control-bar">
+                <div class="filter-item">
+                    <label for="yearSelect">Monitoring Year:</label>
+                    <select id="yearSelect"></select>
+                </div>
+                <div style="font-size:0.85rem;color:#64748b;">
+                    Random Forest Regional Model (Andhra Pradesh State Dataset)
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <!-- Leaflet AP Map -->
+                <div class="map-card">
+                    <div id="map" class="map-element"></div>
+                </div>
+
+                <!-- Side Panel: Well Details & Manual Predict -->
+                <div class="side-panel">
+                    <!-- Well Details Card -->
+                    <div class="card">
+                        <div class="card-title">Well Details</div>
+                        <div id="details">
+                            <b>Well Details</b><br>
+                            Click a well marker on the Andhra Pradesh map to see 1-year and 2-year forecast.
+                        </div>
+                    </div>
+
+                    <!-- Manual Prediction Card -->
+                    <div class="card" id="manual-section">
+                        <div class="card-title">Manual Well Prediction</div>
+                        <div class="form-group" style="margin-bottom:6px;">
+                            <label>District</label>
+                            <input type="text" id="m_district" placeholder="e.g. Krishna">
+                        </div>
+                        <div class="form-group" style="margin-bottom:6px;">
+                            <label>Block</label>
+                            <input type="text" id="m_block" placeholder="e.g. Vijayawada Rural">
+                        </div>
+                        <div class="form-grid" style="margin-top:0;margin-bottom:6px;">
+                            <div class="form-group">
+                                <label>Latitude</label>
+                                <input type="number" id="m_latitude" step="0.0001" placeholder="16.50">
+                            </div>
+                            <div class="form-group">
+                                <label>Longitude</label>
+                                <input type="number" id="m_longitude" step="0.0001" placeholder="80.64">
+                            </div>
+                        </div>
+                        <div class="form-grid" style="margin-top:0;margin-bottom:8px;">
+                            <div class="form-group">
+                                <label>Year</label>
+                                <input type="number" id="m_year" placeholder="2025" value="2025">
+                            </div>
+                            <div class="form-group">
+                                <label>Month</label>
+                                <input type="number" id="m_month" placeholder="6" value="6">
+                            </div>
+                        </div>
+
+                        <button id="manualPredictBtn" class="btn btn-primary" style="width:100%;">Predict Groundwater Level</button>
+                        <div id="manualResult"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- TAB 3: EVALUATION BENCHMARKS & MODEL ARCHITECTURES                -->
+        <!-- ================================================================= -->
+        <section id="tab-benchmarks" class="tab-pane">
+            <div class="card">
+                <div class="card-title">
+                    <span>Phase-2 Deep Learning Evaluation Benchmark (Held-Out Test Set 2022–2023)</span>
+                    <span class="badge-version" style="background:#e0e7ff;color:#1e3a8a;">N = 10,743 Sequences</span>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table benchmark-table">
+                        <thead>
+                            <tr>
+                                <th>Model Architecture</th>
+                                <th>Test RMSE (mbgl)</th>
+                                <th>Test MAE (mbgl)</th>
+                                <th>Test R² Score</th>
+                                <th>Accuracy (±1.0 m)</th>
+                                <th>Accuracy (±2.0 m)</th>
+                                <th>Input Modality</th>
+                                <th>Parameters</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="highlight-best">
+                                <td><strong>GRU (Gated Recurrent Unit) ★</strong></td>
+                                <td><strong>2.1616</strong></td>
+                                <td><strong>1.2821</strong></td>
+                                <td><strong>0.9242</strong></td>
+                                <td><strong>57.99%</strong></td>
+                                <td><strong>82.09%</strong></td>
+                                <td>5-Year Temporal (4 Features)</td>
+                                <td>15,937</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Hybrid Spatio-Temporal GRU</strong></td>
+                                <td>2.1885</td>
+                                <td>1.3178</td>
+                                <td>0.9223</td>
+                                <td>56.89%</td>
+                                <td>81.47%</td>
+                                <td>Temporal + Spatial (Lat, Lon)</td>
+                                <td>16,561</td>
+                            </tr>
+                            <tr>
+                                <td><strong>LSTM (Long Short-Term Memory)</strong></td>
+                                <td>2.2219</td>
+                                <td>1.3368</td>
+                                <td>0.9200</td>
+                                <td>56.68%</td>
+                                <td>80.80%</td>
+                                <td>5-Year Temporal (4 Features)</td>
+                                <td>20,801</td>
+                            </tr>
+                            <tr style="color:#64748b;">
+                                <td><em>Phase 1: Random Forest Baseline</em></td>
+                                <td>2.4510</td>
+                                <td>1.5120</td>
+                                <td>0.8840</td>
+                                <td>51.20%</td>
+                                <td>76.40%</td>
+                                <td>Tabular Cross-Sectional (AP)</td>
+                                <td>N/A (Trees)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div style="margin-top:20px;display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+                    <div style="background:#f8fafc;padding:16px;border-radius:8px;border:1px solid #e2e8f0;">
+                        <h4 style="color:#1e3a8a;margin-bottom:8px;">1. Rigorous Metric Definitions</h4>
+                        <ul style="font-size:0.85rem;color:#475569;line-height:1.6;margin-left:18px;">
+                            <li><strong>Tolerance-Based Prediction Accuracy:</strong> Percentage of predictions within tolerance margin $\delta$:
+                                <code>Accuracy(&plusmn;&delta;) = (1/N) &sum; I(|y - &ycirc;| &le; &delta;) &times; 100%</code>.
+                                In groundwater regression, conventional classification accuracy is mathematically inapplicable.
+                            </li>
+                            <li><strong>Held-Out Temporal Split:</strong> Training (2016–2021), Validation (2021–2022), Held-Out Testing (2022–2023) ensuring strict temporal separation without look-ahead bias.</li>
+                        </ul>
+                    </div>
+
+                    <div style="background:#f8fafc;padding:16px;border-radius:8px;border:1px solid #e2e8f0;">
+                        <h4 style="color:#1e3a8a;margin-bottom:8px;">2. Architectural Insights</h4>
+                        <ul style="font-size:0.85rem;color:#475569;line-height:1.6;margin-left:18px;">
+                            <li><strong>GRU Superiority:</strong> GRU achieves the lowest RMSE (2.1616 mbgl) with 15,937 parameters due to its streamlined reset and update gating, avoiding gradient saturation on 5-step annual sequences.</li>
+                            <li><strong>Hybrid Dual-Branch:</strong> Incorporates spatial coordinates via a parallel Dense embedding layer concatenated with temporal GRU representations to condition predictions on geographic location.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+        <p>Groundwater Level Prediction System | CGWB National Hydrological Monitoring Network | Major Project 2026</p>
+    </footer>
+
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
+
     <!-- Marker Cluster JS -->
     <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
-    
+
+    <!-- Phase 1 Scripts -->
     <script src="map.js"></script>
     <script src="manualPredict.js"></script>
 
-    <!-- <script>
-        const API_URL = "http://localhost:8000/predict";
-        const detailsDiv = document.getElementById("details");
+    <!-- Phase 2 Script -->
+    <script src="phase2.js"></script>
 
-        async function fetchPrediction(input) {
-            const response = await fetch(API_URL, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(input)
-            });
+    <!-- Navigation / Tab Switching Controller -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const tabButtons = document.querySelectorAll(".tab-btn");
+            const tabPanes = document.querySelectorAll(".tab-pane");
 
-            if (!response.ok) {
-                throw new Error("Prediction API failed");
-            }
+            tabButtons.forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const targetId = btn.getAttribute("data-tab");
 
-            return await response.json();
-        }
+                    tabButtons.forEach(b => b.classList.remove("active"));
+                    tabPanes.forEach(p => p.classList.remove("active"));
 
-        /* -------------------------------
-           Map initialization
-        -------------------------------- */
-        const map = L.map("map", { preferCanvas: true })
-            .setView([15.5, 80.5], 7);
-
-        /* Base map */
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-            attribution: "© OpenStreetMap contributors"
-        }).addTo(map);
-
-        /* Color based on groundwater depth */
-        function getColor(wl) {
-            if (wl <= 5) return "blue";
-            if (wl <= 10) return "yellow";
-            return "red";
-        }
-
-        /* Cluster group */
-        const clusterGroup = L.markerClusterGroup({
-            disableClusteringAtZoom: 13,
-            showCoverageOnHover: false
-        });
-        map.addLayer(clusterGroup);
-
-        const yearSelect = document.getElementById("yearSelect");
-        let allData = [];
-
-        /* -------------------------------
-           Load groundwater data
-        -------------------------------- */
-        fetch("wells_data_years.json")
-            .then(res => res.json())
-            .then(data => {
-                allData = data;
-
-                /* Extract unique years */
-                const years = [...new Set(data.map(d => d.year))].sort();
-
-                /* Populate dropdown */
-                years.forEach(year => {
-                    const opt = document.createElement("option");
-                    opt.value = year;
-                    opt.textContent = year;
-                    yearSelect.appendChild(opt);
-                });
-
-                /* Default = latest year */
-                const latestYear = years[years.length - 1];
-                yearSelect.value = latestYear;
-
-                plotYear(latestYear);
-            });
-
-        /* -------------------------------
-           Plot wells for selected year
-        -------------------------------- */
-        function plotYear(selectedYear) {
-            clusterGroup.clearLayers();
-
-            const bounds = [];
-            const filtered = allData.filter(d => d.year == selectedYear);
-
-            filtered.forEach(well => {
-                bounds.push([well.latitude, well.longitude]);
-
-                L.circleMarker(
-                    [well.latitude, well.longitude],
-                    {
-                        radius: 6,
-                        weight: 1,
-                        color: getColor(well.wl),
-                        fillColor: getColor(well.wl),
-                        fillOpacity: 0.7
+                    btn.classList.add("active");
+                    const targetPane = document.getElementById(targetId);
+                    if (targetPane) {
+                        targetPane.classList.add("active");
                     }
-                )
-                    .on("click", async () => {
 
-                        const selectedYear = Number(yearSelect.value);
-
-                        // Show loading
-                        detailsDiv.innerHTML = `
-        <b>Well Details</b><br>
-        District: ${well.district}<br>
-        Block: ${well.block}<br>
-        Village: ${well.village}<br>
-        <br>
-        ⏳ Fetching predictions...
-    `;
-
-                        try {
-                            console.log("Fetching predictions...");
-                            // Predict for +1 year
-                            const pred1 = await fetchPrediction({
-                                Year: selectedYear + 1,
-                                Month: 6,
-                                LATITUDE: Number(well.latitude),
-                                LONGITUDE: Number(well.longitude),
-                                DISTRICT: String(well.district),
-                                BLOCK: String(well.block)
-                            });
-
-
-                            // Predict for +2 year
-                            const pred2 = await fetchPrediction({
-                                Year: selectedYear + 2,
-                                Month: 6,
-                                LATITUDE: Number(well.latitude),
-                                LONGITUDE: Number(well.longitude),
-                                DISTRICT: String(well.district),
-                                BLOCK: String(well.block)
-                            });
-
-
-                            // Update details panel
-                            detailsDiv.innerHTML = `
-            <b>Well Details</b><br><br>
-
-            <b>Location</b><br>
-            District: ${well.district}<br>
-            Block: ${well.block}<br>
-            Village: ${well.village}<br><br>
-
-            <b>Current WL (${selectedYear})</b><br>
-            ${well.wl} mbgl<br><br>
-
-            <b>Predicted WL</b><br>
-            ${selectedYear + 1}: ${pred1.predicted_WL.toFixed(2)} mbgl<br>
-            ${selectedYear + 2}: ${pred2.predicted_WL.toFixed(2)} mbgl<br><br>
-
-            <b>Risk Category</b><br>
-            ${pred2.risk_category}
-        `;
-                        } catch (err) {
-                            detailsDiv.innerHTML = `
-            <b>Error</b><br>
-            Unable to fetch prediction.<br>
-            Please check backend service.
-        `;
-                            console.error(err);
-                        }
-                    })
-                    .addTo(clusterGroup);
-
+                    // Invalidate Leaflet maps on tab switch to prevent tile rendering artifacts
+                    if (targetId === "tab-phase1" && window.invalidatePhase1Map) {
+                        window.invalidatePhase1Map();
+                    } else if (targetId === "tab-phase2" && window.invalidatePhase2Map) {
+                        window.invalidatePhase2Map();
+                    }
+                });
             });
-
-            if (bounds.length) {
-                map.fitBounds(bounds);
-                map.invalidateSize();
-            }
-        }
-
-        /* -------------------------------
-           Year change handler
-        -------------------------------- */
-        yearSelect.addEventListener("change", e => {
-            plotYear(e.target.value);
         });
-
-        /* -------------------------------
-           Legend
-        -------------------------------- */
-        const legend = L.control({ position: "bottomright" });
-
-        legend.onAdd = function () {
-            const div = L.DomUtil.create("div", "legend");
-            div.innerHTML = `
-        <b>Groundwater Level</b><br>
-        <span style="background: blue"></span> Shallow (≤ 5 mbgl)<br>
-        <span style="background: yellow"></span> Moderate (5–10 mbgl)<br>
-        <span style="background: red"></span> Deep (> 10 mbgl)
-    `;
-            return div;
-        };
-
-        legend.addTo(map);
-    </script> -->
+    </script>
 
 </body>
 

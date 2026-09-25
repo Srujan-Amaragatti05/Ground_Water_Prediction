@@ -1,6 +1,50 @@
 # -----------------------------
 # 1. Import required libraries
 # -----------------------------
+
+# To Run the FastAPI server, use the following command:
+# uvicorn backend.main:app --reload
+
+'''
+ #### Option A: GRU Model (or LSTM)
+
+    {
+      "model": "gru",
+      "temporal_sequence": [
+        [4.50, 1120.0, 27.5, 65.0],
+        [4.80, 1050.0, 28.0, 63.0],
+        [5.10, 980.0,  28.2, 61.0],
+        [5.25, 1020.0, 27.8, 62.5],
+        [5.40, 950.0,  28.5, 60.0]
+      ]
+    }
+
+  #### Option B: Hybrid Spatio-Temporal GRU (Requires Coordinates)
+
+    {
+      "model": "hybrid",
+      "temporal_sequence": [
+        [4.50, 1120.0, 27.5, 65.0],
+        [4.80, 1050.0, 28.0, 63.0],
+        [5.10, 980.0,  28.2, 61.0],
+        [5.25, 1020.0, 27.8, 62.5],
+        [5.40, 950.0,  28.5, 60.0]
+      ],
+      "latitude": 23.5199,
+      "longitude": 86.8289
+    }
+  ──────
+  ### 3. Expected 200 OK Response
+
+    {
+      "model": "gru",
+      "predicted_wl": 7.69,
+      "unit": "mbgl",
+      "sequence_length": 5
+    }
+  ──────
+'''
+
 from fastapi import FastAPI
 from pydantic import BaseModel, Field
 import pickle
@@ -13,28 +57,37 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from routers.phase2 import router as phase2_router
 
 
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse, Response
+
 # -----------------------------
 # 2. Initialize FastAPI app
 # -----------------------------
 app = FastAPI(
     title="Groundwater Level Prediction API",
-    description="Predicts groundwater level (WL in mbgl) using Random Forest",
-    version="1.0"
+    description="Predicts groundwater level (WL in mbgl) using Random Forest & Phase-2 Deep Learning",
+    version="2.0"
 )
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5500",
-        "http://127.0.0.1:5500"
+        "http://127.0.0.1:5500",
+        "http://localhost:8000",
+        "http://127.0.0.1:8000",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
     ],
+    allow_origin_regex=r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Register Phase-2 router (Step F)
+# Register Phase-2 router (Step F & G)
 app.include_router(phase2_router)
-
 
 # -----------------------------
 # 3. Load trained model & preprocessors
@@ -133,3 +186,17 @@ def predict_groundwater(data: GroundwaterInput):
         "predicted_WL": round(float(predicted_wl), 2),
         "risk_category": risk
     }
+
+
+# -----------------------------
+# 12. Static Files & Frontend SPA
+#     (Mounted last so all API routes have priority)
+# -----------------------------
+@app.get("/favicon.ico", include_in_schema=False)
+def favicon():
+    return Response(status_code=204)
+
+FRONTEND_DIR = os.path.join(os.path.dirname(BASE_DIR), "frontend")
+if os.path.isdir(FRONTEND_DIR):
+    app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")
+
